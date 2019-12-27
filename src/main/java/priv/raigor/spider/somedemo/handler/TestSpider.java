@@ -51,4 +51,14 @@ public class TestSpider implements ApplicationListener<ContextRefreshedEvent> {
         String responseResult = HttpUtils.postForm(url , params);
         LOG.debug("responseResult is:{}",responseResult);
     }
+
+    public static void main(String[] args){
+        String url = "http://ali.infosalons.com.cn/vscenter/exhibitor/exhibitorlist.aspx?f=197647d8-3195-4d62-9d67-3b44ffa33e42";
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("__EVENTTARGET","ctl00$main$anpPager");
+        params.put("__EVENTARGUMENT","2");
+        params.put("__VIEWSTATE","/wEPBRI2MzcwOTk2NzA0ODI5Mzg3OTRkHgV8ObsX23MutoMJO+SjACJA+no=");
+        String responseResult = HttpUtils.postForm(url , params);
+        LOG.debug("responseResult is:{}",responseResult);
+    }
 }
