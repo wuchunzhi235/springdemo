@@ -104,4 +104,29 @@ public final class HttpUtils {
         return "";
     }
 
+
+    public static String postFormForHeadersAndJson(String url,Map<String, String> headers, String jsonContent) {
+        try {
+            HttpPost httpPost = new HttpPost(url.trim());
+            httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; rv:6.0.2) Gecko/20100101 Firefox/6.0.2");
+            //BasicClientCookie cookie = new BasicClientCookie("PHPSESSID", "2brls80t268lhm9vhmadvkbko4");
+            //httpPost.setHeader("Cookies", cookie.toString());
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(30000).setConnectionRequestTimeout(30000).setSocketTimeout(30000).build();
+            httpPost.setConfig(requestConfig);
+            //StringEntity se = new StringEntity(param.toString(), CHARSET_UTF_8);
+            //List<NameValuePair> form = new ArrayList<NameValuePair>();
+            for (String name : headers.keySet()) {
+                httpPost.addHeader(name,headers.get(name));
+            }
+            StringEntity entity = new StringEntity(jsonContent,
+                    CHARSET_UTF_8);
+            httpPost.setEntity(entity);
+            HttpResponse httpResponse = HttpClientBuilder.create().build().execute(httpPost);
+            return EntityUtils.toString(httpResponse.getEntity(), CHARSET_UTF_8);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
 }
