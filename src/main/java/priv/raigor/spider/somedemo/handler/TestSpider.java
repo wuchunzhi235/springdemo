@@ -39,7 +39,7 @@ import java.util.Map;
  * @version 1.0
  * @since 2019/11/21 21:25
  */
-@Component
+//@Component
 public class TestSpider implements ApplicationListener<ContextRefreshedEvent> {
     private static final Logger LOG = LoggerFactory.getLogger(TestSpider.class);
     public void onApplicationEvent(ContextRefreshedEvent event) {

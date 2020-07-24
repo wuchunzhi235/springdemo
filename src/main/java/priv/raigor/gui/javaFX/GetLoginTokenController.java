@@ -28,6 +28,7 @@ package priv.raigor.gui.javaFX;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -73,9 +74,13 @@ public class GetLoginTokenController extends Application {
 
     private Button loginButton = null;
 
-    private Stage tempStage = null;
-
     private boolean loginResult = false;
+
+    private String wholeAid = "";
+
+    private String userId = "J8A9xJ_wHTk8Eb9GX9KJL";
+
+    private Stage tempStage = null;
 
     public static void main(String[] args) {
         launch(args);
@@ -110,7 +115,7 @@ public class GetLoginTokenController extends Application {
             //grid.add()方法，该方法，有五个参数，该参数不是每个都必填的，分别是要放入的组件，以及第几列，第几行，跨几列和跨几行。
             // 因此我们将Text组件放在第一行，第一列并且跨两列和跨一行；将‘UserName’的Label组件放在第二行第一列，TextField放在第二行第二列，
             // 将‘Password’的Lable组件放在第三行第一列，PasswordField放在第三行第二列。在grid中行和列是从0开始算起的。
-            grid.add(sceneTitle, 1, 0, 2, 1);
+            grid.add(sceneTitle, 1, 0, 4, 1);
 
             //用户名
             Label userName = new Label("用户名(如果不填默认是wuchunzhi):");
@@ -118,7 +123,7 @@ public class GetLoginTokenController extends Application {
             grid.add(userName, 0, 3);
 
             //用户名输入文本框
-            userTextField = new TextField();
+            userTextField = new TextField("J8A9xJ_wHTk8Eb9GX9KJL");
             grid.add(userTextField, 1, 3);
 
             //密码
@@ -172,14 +177,17 @@ public class GetLoginTokenController extends Application {
             h2Box.getChildren().add(loginButton);
             grid.add(h2Box, 1, 10);
 
-            //声明点击事件,点击显示文本信息
+            //获取loginToken
             getloginTokenButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+                    if(StringUtils.isNotEmpty(userTextField.getText())){
+                        userId = userTextField.getText();
+                    }
 
-                    String userName = userTextField.getText();
+
                     String teamId = passwordField.getText();
-                    String getLoginTokenResult = JDMeLoginTest.timLineLoginHaveToken(userName,teamId);
+                    String getLoginTokenResult = JDMeLoginTest.timLineLoginHaveToken(userId,teamId);
                     actionTarget.setText(ForMatJSONStr.format(getLoginTokenResult));
                     boolean loginResult = false;
                     try{
@@ -214,10 +222,14 @@ public class GetLoginTokenController extends Application {
             });
 
 
-            //声明点击事件,点击显示文本信息
+            //登录
             loginButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+                    if(StringUtils.isNotEmpty(userTextField.getText())){
+                        userId = userTextField.getText();
+                    }
+
                     String authSendStr = "{\"body\":" +
                             "{\"clientKind\":\"enterprise\"," +
                             "\"clientVersion\":\"6.3.0.1.20190729\"," +
@@ -226,12 +238,14 @@ public class GetLoginTokenController extends Application {
                             "\"ext\":{\"sdkName\":\"sdk_e\",\"sdkVersion\":\"1.5.0\"}," +
                             "\"netType\":\"internet\",\"presence\":\"chat\"," +
                             "\"token\":\""+timLineToken+"\"}," +
-                            "\"from\":{\"app\":\"ee\",\"clientType\":\"android\",\"pin\":\"wuchunzhi\"}," +
-                            "\"lang\":\"zh_CN\",\"len\":0,\"mid\":0,\"timestamp\":1587538449104," +
+                            "\"from\":{\"app\":\"ee\",\"clientType\":\"android\",\"pin\":\""+userId+"\"}," +
+                            "\"lang\":\"zh_CN\",\"len\":0,\"mid\":0,\"timestamp\":"+ChatTools.getTimeStampCurrent()+"," +
                             "\"to\":{\"app\":\"ee\",\"pin\":\"@im.jd.com\"},\"ver\":\"4.3\"," +
-                            "\"id\":\"92c6b0d9e4ea4a1f86649d8c1a8f4535\",\"type\":\"auth\"}";
+                            "\"id\":\""+ChatTools.getUUid()+"\",\"type\":\"auth\"}";
                     authRequestSend.setText(ForMatJSONStr.format(authSendStr));
-                    JDMeLoginTest.setScoketConnection("11.42.68.80");
+                    // 10.172.234.0
+                    // 11.42.68.80
+                    JDMeLoginTest.setScoketConnection("10.172.234.0");
                     recvReader = JDMeLoginTest.getReader();
                     sendWriter = JDMeLoginTest.getWriter();
                     JDMeLoginTest.sendMessage(authSendStr);
@@ -240,18 +254,14 @@ public class GetLoginTokenController extends Application {
                         readerThread = new Thread(new ReceMsgReader());
                         readerThread.start(); 		//开启新的线程，负责接收来自服务器端的消息
                     }
-                    try {
-                        Thread.currentThread().sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    boolean switchResult = switchToChat();
-                    if(switchResult){
-                        //如果登录成功，并且切到聊天窗口成功，那么就关闭该线程。
-                        if( readerThread != null ){
-                            readerThread.interrupt();
-                        }
-                    }
+
+//                    while(!loginResult){
+//                        switchToChat();
+//                        //如果登录成功，并且切到聊天窗口成功，那么就关闭该线程。
+////                        if( readerThread != null ){
+////                            readerThread.interrupt();
+////                        }
+//                    }
 
                 }
             });
@@ -259,7 +269,7 @@ public class GetLoginTokenController extends Application {
             //表示为该舞台创建一个场景，上面的网格就是被安置在这个场景中的，该场景的大小为300和275个像素，oracle官网推荐，
             // 在创建场景的时候，好的做法是给该场景设置大小，如果不设置大小则会默认自动更具场景中的内容调整场景的大小，
             // 此外该场景的大小也直接决定于外围舞台的大小。
-            Scene scene = new Scene(grid, 1500, 700);
+            Scene scene = new Scene(grid, 1400, 700);
             //场景引入css文件
             //scene.getStylesheets().add(LoginController.class.getResource("LoginController.css").toExternalForm());
             //将场景加入舞台中
@@ -289,11 +299,15 @@ public class GetLoginTokenController extends Application {
                         JSONObject loginResultJson = JSON.parseObject(loginResultString);
                         if(loginResultJson != null ){
                             String loginResultHas = loginResultJson.getString("type");
+                            String aid = loginResultJson.getString("aid");
                             if(StringUtils.isNotEmpty(loginResultHas) && "auth_result".equals(loginResultHas)){
                                 loginResult = true;
+                                wholeAid = aid;
+                                System.out.println("------------loginResult:"+loginResult);
+                                switchToChat(tempStage);
+                                return ;
                             }
                         }
-                        System.out.println("------------loginResult:"+loginResult);
                     }
 
                     if(Thread.currentThread().isInterrupted()){
@@ -309,31 +323,37 @@ public class GetLoginTokenController extends Application {
         }
     }
 
-    private boolean switchToChat(){
-        System.out.println("inner switchToChat");
+    private boolean switchToChat(Stage stage){
+        //System.out.println("inner switchToChat  loginResult is:"+loginResult);
 
         //如果获取成功，再用loginToken来进行登录
         if (loginResult) {
+            System.out.println("inner switchToChat  loginResult is:"+loginResult);
+
             //登录成功
             //actionTarget.setFill(Color.GREENYELLOW);
             //actionTarget.setText("欢迎登录...");
-            LoginController loginController = new LoginController();
-            Stage newStage = new Stage();
-            try {
-                loginController.start(newStage);
-                if(getloginTokenButton != null){
-                    getloginTokenButton.setVisible(false);
+            //Stage newStage = new Stage();
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    try {
+                        if(getloginTokenButton != null){
+                            getloginTokenButton.setVisible(false);
+                        }
+                        if(loginButton != null){
+                            loginButton.setVisible(false);
+                        }
+
+                        if(stage != null){
+                            stage.close();
+                        }
+
+                        new LoginController(wholeAid,userId).start(new Stage());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-                if(loginButton != null){
-                    loginButton.setVisible(false);
-                }
-                if(tempStage != null){
-                    tempStage.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                loginResult = false;
-            }
+            });
         }
         return loginResult;
     }

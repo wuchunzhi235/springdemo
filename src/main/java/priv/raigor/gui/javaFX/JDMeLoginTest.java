@@ -57,7 +57,7 @@ public class JDMeLoginTest {
             System.out.println("userName IS isEmpty,set userName = wuchunzhi ");
             userName = "wuchunzhi";
         }
-        String url = "https://janus-api.jd.com/timLineLogin";
+        String url = "https://janus-api-pre.jd.com/timLineLogin";
         Map<String, String> headers = new HashMap<String, String>();
         headers.put("x-client", "ANDROID");
         headers.put("x-ts", "1572401824215");

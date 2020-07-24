@@ -11,4 +11,14 @@
 	   default-autowire="byName">
 	<context:component-scan base-package="priv.raigor.trial.spring.*"  />
 	<context:component-scan base-package="priv.raigor.spider.*"  />
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath:service.properties</value>
+			</list>
+		</property>
+	</bean>
+
 </beans>

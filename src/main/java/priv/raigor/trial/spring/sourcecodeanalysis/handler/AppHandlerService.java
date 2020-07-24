@@ -43,6 +43,6 @@ public class AppHandlerService implements ApplicationListener<ContextRefreshedEv
     private static final Logger LOG = LoggerFactory.getLogger(AppHandlerService.class);
 
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        LOG.info(" here is ???? ");
+        LOG.info(" here is AppHandlerService onApplicationEvent ???? ");
     }
 }

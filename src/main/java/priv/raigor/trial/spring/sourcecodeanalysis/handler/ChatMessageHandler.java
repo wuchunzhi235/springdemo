@@ -28,6 +28,6 @@ public class ChatMessageHandler  implements InitializingBean {
 
 
     public void afterPropertiesSet() throws Exception {
-        LOG.info(" here is ???? ");
+        LOG.info(" here is ChatMessageHandler afterPropertiesSet ???? ");
     }
 }
